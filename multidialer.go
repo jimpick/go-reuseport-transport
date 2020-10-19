@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-
-	"github.com/libp2p/go-netroute"
 )
 
 type multiDialer struct {
@@ -43,15 +41,17 @@ func (d *multiDialer) DialContext(ctx context.Context, network, addr string) (ne
 		return nil, fmt.Errorf("undialable IP: %s", ip)
 	}
 
-	if router, err := netroute.New(); err == nil {
-		if _, _, preferredSrc, err := router.Route(ip); err == nil {
-			for _, optAddr := range d.listeningAddresses {
-				if optAddr.IP.Equal(preferredSrc) {
-					return reuseDial(ctx, optAddr, network, addr)
+	/*
+		if router, err := netroute.New(); err == nil {
+			if _, _, preferredSrc, err := router.Route(ip); err == nil {
+				for _, optAddr := range d.listeningAddresses {
+					if optAddr.IP.Equal(preferredSrc) {
+						return reuseDial(ctx, optAddr, network, addr)
+					}
 				}
 			}
 		}
-	}
+	*/
 
 	if ip.IsLoopback() && len(d.loopback) > 0 {
 		return reuseDial(ctx, randAddr(d.loopback), network, addr)
